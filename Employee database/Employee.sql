@@ -69,3 +69,33 @@ JOIN Dept D ON E.DeptNo = D.DeptNo
 JOIN Assigned_To A ON E.EmpNo = A.EmpNo
 JOIN Project P ON A.PNo = P.PNo
 WHERE D.DLoc = P.PLoc;
+
+
+SELECT e.ename AS manager_name, COUNT(m.empno) AS total_employees
+FROM employee e
+JOIN employee m ON e.empno = m.mgr_no
+GROUP BY e.empno, e.ename
+HAVING COUNT(m.empno) = (SELECT MAX(emp_count)
+FROM (SELECT COUNT(*) AS emp_count
+FROM employee
+WHERE mgr_no IS NOT NULL
+GROUP BY mgr_no) AS counts);
+
+
+select m.ename as manager_name from employee m
+where m.sal>( select avg(e.sal) from employee e where e.mgr_no=m.mgr_no );
+
+select e.ename as second_level_manager,d.dname as department from employee e
+join dept d on e.deptno=d.deptno 
+where e.mgr_no in (
+select empno from employee where mgr_no is null);
+
+select * from incentives where incentivedate between '2019-01-01'and '2019-01-31'
+and incentive_amount=(select max(incentive_amount) from incentives where incentivedate between '2019-01-01'and '2019-01-31'
+and incentive_amount<(select max(incentive_amount) from incentives where incentivedate between '2024-01-01' and '2024-01-31')
+);
+
+select e.ename as employee, m.ename as manager, d.dname as department from employee e
+join employee m on e.mgr_no=m.empno
+join dept d on e.deptno=d.deptno
+where e.deptno=m.deptno;
